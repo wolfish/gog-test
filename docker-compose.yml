@@ -1,0 +1,44 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - backend
+  web:
+    image: nginx:latest
+    depends_on:
+      - db
+      - php-fpm
+    ports:
+        - "8080:80"
+    volumes:
+      - ./init/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src:/var/www/html
+    networks:
+      - backend
+  php-fpm:
+    container_name: php-fpm
+    build:
+      context: .
+    depends_on:
+      - db
+    volumes:
+        - ./src:/var/www/html
+    networks:
+      - backend
+volumes:
+  db:
+    driver: local
+networks:
+  backend:
+    driver: bridge
