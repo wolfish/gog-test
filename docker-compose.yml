@@ -34,6 +34,8 @@ services:
       - db
     volumes:
         - ./src:/var/www/html
+    links:
+      - db
     networks:
       - backend
 volumes:
